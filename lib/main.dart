@@ -39,9 +39,16 @@ class _HomeState extends State<Home> {
   final realController = TextEditingController();
   final dolarController = TextEditingController();
   final euroController = TextEditingController();
+  final opMoedaController = TextEditingController();
 
   double dolar;
   double euro;
+  double btc;
+  double ars;
+  double op;
+
+  String nomeMoeda = "";
+  String sMoeda = "";
 
   void _realChanged(String text) {
     if (text.isEmpty) {
@@ -51,6 +58,7 @@ class _HomeState extends State<Home> {
     double real = double.parse(text);
     dolarController.text = (real / dolar).toStringAsFixed(2);
     euroController.text = (real / euro).toStringAsFixed(2);
+    opMoedaController.text = (real / op).toStringAsFixed(3);
   }
 
   void _dolarChanged(String text) {
@@ -61,6 +69,7 @@ class _HomeState extends State<Home> {
     double dolar = double.parse(text);
     realController.text = (dolar * this.dolar).toStringAsFixed(2);
     euroController.text = (dolar * this.dolar / euro).toStringAsFixed(2);
+    opMoedaController.text = (dolar * this.dolar / op).toStringAsFixed(3);
   }
 
   void _euroChanged(String text) {
@@ -71,12 +80,66 @@ class _HomeState extends State<Home> {
     double euro = double.parse(text);
     realController.text = (euro * this.euro).toStringAsFixed(2);
     dolarController.text = (euro * this.euro / dolar).toStringAsFixed(2);
+    opMoedaController.text = (euro * this.euro / op).toStringAsFixed(3);
+  }
+
+  void _opMoedaChanged(String text) {
+    if (text.isEmpty) {
+      _clearAll();
+      return;
+    }
+    double opMoeda = double.parse(text);
+    print(op);
+    realController.text = (opMoeda * op).toStringAsFixed(2);
+    dolarController.text = (opMoeda * op / dolar).toStringAsFixed(2);
+    euroController.text = (opMoeda * op / euro).toStringAsFixed(2);
   }
 
   void _clearAll() {
     realController.text = "";
     dolarController.text = "";
     euroController.text = "";
+    opMoedaController.text = "";
+  }
+
+  var lista = [
+    DropdownMenuItem(
+      child: Text("Bitcoins"),
+      value: [
+        "Bitcoin",
+        "BT\$",
+      ],
+    ),
+    DropdownMenuItem(
+      child: Text("Pesos Argentinos"),
+      value: [
+        "Peso Argentino",
+        "\$",
+      ],
+    ),
+  ].toList();
+
+  Widget dpdOptions(var lista) {
+    return DropdownButton(
+      items: lista,
+      style: TextStyle(color: Colors.white, fontSize: 18),
+      dropdownColor: Colors.amber,
+      underline: Container(
+        height: 2,
+        color: Colors.amber,
+      ),
+      hint: Text("Escolha uma outra moeda"),
+      onChanged: (value) {
+        setState(
+          () {
+            nomeMoeda = value[0];
+            sMoeda = value[1];
+            op = (nomeMoeda == "Bitcoin") ? btc : ars;
+            _clearAll();
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -119,6 +182,8 @@ class _HomeState extends State<Home> {
               } else {
                 dolar = snp.data["results"]["currencies"]["USD"]["buy"];
                 euro = snp.data["results"]["currencies"]["EUR"]["buy"];
+                ars = snp.data["results"]["currencies"]["ARS"]["buy"];
+                btc = snp.data["results"]["currencies"]["BTC"]["buy"];
 
                 return SingleChildScrollView(
                   padding: EdgeInsets.all(10.0),
@@ -138,6 +203,11 @@ class _HomeState extends State<Home> {
                       Divider(),
                       buildTextField(
                           "Euros", "€", euroController, _euroChanged),
+                      Divider(),
+                      dpdOptions(lista),
+                      Divider(),
+                      buildTextField(nomeMoeda, sMoeda, opMoedaController,
+                          _opMoedaChanged),
                     ],
                   ),
                 );

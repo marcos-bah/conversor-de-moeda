@@ -2,7 +2,7 @@
 
 A new Flutter project.
 
-![](https://github.com/marcos-bah/conversor-de-moeda/blob/master/doc/conv.png)
+![](https://github.com/marcos-bah/conversor-de-moeda/blob/master/doc/conv1.png)
 
 ## Getting Started
 
